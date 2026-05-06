@@ -10,126 +10,122 @@ app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
 
 let ExpencesTracker = [
-{ id: 1, name: "Wanderer", CharType: "Wind" },
-{ id: 2, name: "Shin", CharType: "Lightning" },
-{ id: 3, name: "Acheron", CharType: "Lightning" },
-{ id: 4, name: "Kafka", CharType: "Lightning" },
-{ id: 5, name: "Blade", CharType: "Wind" },
-{ id: 6, name: "Seele", CharType: "Quantum" },
-{ id: 7, name: "Bronya", CharType: "Wind" },
-{ id: 8, name: "Himeko", CharType: "Fire" },
-{ id: 9, name: "March 7th", CharType: "Ice" },
-{ id: 10, name: "Dan Heng", CharType: "Wind" }
+  { id: 1, ExpencesType: "ElectricBill", Price: "$15" },
 ]
 
-app.get('/api/ExpencesTracker', (req, res) => {
-res.status(200).json(ExpencesTracker)
+// GET all
+app.get('/api/expenses', (req, res) => {
+  res.status(200).json(ExpencesTracker)
 })
 
-app.get('/api/ExpencesTracker/:id', (req, res) => {
-const id = parseInt(req.params.id)
-const char = ExpencesTracker.find(c => c.id === id)
+// GET by id
+app.get('/api/expenses/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const expense = ExpencesTracker.find(e => e.id === id)
 
-if (!char) {
-    return res.status(404).json({ message: "Character not found" })
-}
+  if (!expense) {
+    return res.status(404).json({ message: "Expense not found" })
+  }
 
-res.json(char)
-
+  res.json(expense)
 })
 
-app.post('/api/ExpencesTracker', (req, res) => {
-const { name, CharType } = req.body
+// CREATE
+app.post('/api/expenses', (req, res) => {
+  const { ExpencesType, Price } = req.body
 
-if (!name || !CharType) {
+  if (!ExpencesType || !Price) {
     return res.status(400).json({ message: "Missing fields" })
-}
+  }
 
-const newChar = {
-    id: HsrCharacters.length + 1,
-    name,
-    CharType
-}
+  const newExpense = {
+    id: ExpencesTracker.length + 1,
+    ExpencesType,
+    Price
+  }
 
-HsrCharacters.push(newChar)
+  ExpencesTracker.push(newExpense)
 
-res.status(201).json({
-    message: "Expences added",
-    data: newChar
+  res.status(201).json({
+    message: "Expense added",
+    data: newExpense
+  })
 })
 
+// UPDATE
+app.put('/api/expenses/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const { ExpencesType, Price } = req.body
+
+  const expense = ExpencesTracker.find(e => e.id === id)
+
+  if (!expense) {
+    return res.status(404).json({ message: "Expense not found" })
+  }
+
+  expense.ExpencesType = ExpencesType || expense.ExpencesType
+  expense.Price = Price || expense.Price
+
+  res.json({ message: "Updated", data: expense })
 })
 
-app.put('/api/ExpencesTracker/:id', (req, res) => {
-const id = parseInt(req.params.id)
-const { name, CharType } = req.body
+// DELETE
+app.delete('/api/expenses/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const index = ExpencesTracker.findIndex(e => e.id === id)
 
-const char = ExpencesTracker.find(c => c.id === id)
+  if (index === -1) {
+    return res.status(404).json({ message: "Expense not found" })
+  }
 
-if (!char) {
-    return res.status(404).json({ message: "Character not found" })
-}
+  ExpencesTracker.splice(index, 1)
 
-char.name = name || char.name
-char.CharType = CharType || char.CharType
-
-res.json({ message: "Updated", data: char })
-
+  res.json({ message: "Deleted successfully" })
 })
 
-app.delete('/api/ExpencesTracker/:id', (req, res) => {
-const id = parseInt(req.params.id)
-const index = ExpencesTracker.findIndex(c => c.id === id)
+// FILTER by type
+app.get('/api/expenses/type/:type', (req, res) => {
+  const type = req.params.type
 
-if (index === -1) {
-    return res.status(404).json({ message: "Expences not found" })
-}
+  const result = ExpencesTracker.filter(e =>
+    e.ExpencesType.toLowerCase() === type.toLowerCase()
+  )
 
-ExpencesTracker.splice(index, 1)
-
-res.json({ message: "Deleted successfully" })
-
+  res.json(result)
 })
 
-app.get('/api/ExpencesTracker/type/:type', (req, res) => {
-const type = req.params.type
-const result = HsrCharacters.filter(c =>
-c.CharType.toLowerCase() === type.toLowerCase()
-)
-
-res.json(result)
-
-})
-
+// SEARCH
 app.get('/api/search', (req, res) => {
-const name = req.query.name
+  const type = req.query.type
 
-if (!name) {
+  if (!type) {
     return res.status(400).json({ message: "Missing search query" })
-}
+  }
 
-const result = HsrCharacters.filter(c =>
-    c.name.toLowerCase().includes(name.toLowerCase())
-)
+  const result = ExpencesTracker.filter(e =>
+    e.ExpencesType.toLowerCase().includes(type.toLowerCase())
+  )
 
-res.json(result)
-
+  res.json(result)
 })
 
+// RANDOM
 app.get('/api/random', (req, res) => {
-const random = HsrCharacters[Math.floor(Math.random() * HsrCharacters.length)]
-res.json(random)
+  const random = ExpencesTracker[Math.floor(Math.random() * ExpencesTracker.length)]
+  res.json(random)
 })
 
+// COUNT
 app.get('/api/count', (req, res) => {
-res.json({ total: HsrCharacters.length })
+  res.json({ total: ExpencesTracker.length })
 })
 
+// TOP 3
 app.get('/api/top', (req, res) => {
-const top = HsrCharacters.slice(0, 3)
-res.json(top)
+  const top = ExpencesTracker.slice(0, 3)
+  res.json(top)
 })
 
 app.listen(port, () => {
-console.log(`Server running on https://dublin-sia-app.onrender.com`)
+  console.log(`Server running on http://localhost:${port}`)
 })
