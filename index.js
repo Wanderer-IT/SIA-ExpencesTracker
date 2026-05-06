@@ -14,17 +14,17 @@ res.send('API is running. Use /api/expenses')
 })
 
 let expenses = [
-    { id: 1, type: "ElectricBill", price: 15 },
-    { id: 2, type: "WaterBill", price: 10 },
-    { id: 3, type: "InternetBill", price: 25 },
-    { id: 4, type: "Groceries", price: 60 },
-    { id: 5, type: "Transport", price: 20 },
-    { id: 6, type: "Rent", price: 300 },
-    { id: 7, type: "Load", price: 5 },
-    { id: 8, type: "FoodDelivery", price: 18 },
-    { id: 9, type: "SchoolSupplies", price: 12 },
-    { id: 10, type: "Entertainment", price: 15 }
-    ]
+{ id: 1, type: "ElectricBill", price: 15, status: "unpaid" },
+{ id: 2, type: "WaterBill", price: 10, status: "unpaid" },
+{ id: 3, type: "InternetBill", price: 25, status: "unpaid" },
+{ id: 4, type: "Groceries", price: 60, status: "unpaid" },
+{ id: 5, type: "Transport", price: 20, status: "unpaid" },
+{ id: 6, type: "Rent", price: 300, status: "unpaid" },
+{ id: 7, type: "Load", price: 5, status: "unpaid" },
+{ id: 8, type: "FoodDelivery", price: 18, status: "unpaid" },
+{ id: 9, type: "SchoolSupplies", price: 12, status: "unpaid" },
+{ id: 10, type: "Entertainment", price: 15, status: "unpaid" }
+]
 
 function generateId() {
 return expenses.length > 0
@@ -48,16 +48,17 @@ res.json(expense)
 })
 
 app.post('/api/expenses', (req, res) => {
-const { type, price } = req.body
+const { type, price, status } = req.body
 
-if (!type || price == null) {
-return res.status(400).json({ message: "Missing fields" })
+if (!type || price === undefined) {
+return res.status(400).json({ message: "type and price are required" })
 }
 
 const newExpense = {
 id: generateId(),
-type,
-price: Number(price)
+type: type,
+price: Number(price),
+status: status || "unpaid"
 }
 
 expenses.push(newExpense)
@@ -76,10 +77,11 @@ if (!expense) {
 return res.status(404).json({ message: "Expense not found" })
 }
 
-const { type, price } = req.body
+const { type, price, status } = req.body
 
 if (type !== undefined) expense.type = type
 if (price !== undefined) expense.price = Number(price)
+if (status !== undefined) expense.status = status
 
 res.json({
 message: "Updated successfully",
