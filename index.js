@@ -3,119 +3,138 @@ const cors = require('cors')
 const path = require('path')
 
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.use(cors())
 app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
 
-let ExpencesTracker = [
-  { id: 1, ExpencesType: "ElectricBill", Price: "$15" },
+app.get('/', (req, res) => {
+res.send('API is running. Use /api/expenses')
+})
+
+let expenses = [
+{ id: 1, type: "ElectricBill", price: 15 }
 ]
 
+function generateId() {
+return expenses.length > 0
+? Math.max(...expenses.map(e => e.id)) + 1
+: 1
+}
+
 app.get('/api/expenses', (req, res) => {
-  res.status(200).json(ExpencesTracker)
+res.json(expenses)
 })
 
 app.get('/api/expenses/:id', (req, res) => {
-  const id = parseInt(req.params.id)
-  const expense = ExpencesTracker.find(e => e.id === id)
+const id = Number(req.params.id)
+const expense = expenses.find(e => e.id === id)
 
-  if (!expense) {
-    return res.status(404).json({ message: "Expense not found" })
-  }
+if (!expense) {
+return res.status(404).json({ message: "Expense not found" })
+}
 
-  res.json(expense)
+res.json(expense)
 })
 
 app.post('/api/expenses', (req, res) => {
-  const { ExpencesType, Price } = req.body
+const { type, price } = req.body
 
-  if (!ExpencesType || !Price) {
-    return res.status(400).json({ message: "Missing fields" })
-  }
+if (!type || price == null) {
+return res.status(400).json({ message: "Missing fields" })
+}
 
-  const newExpense = {
-    id: ExpencesTracker.length + 1,
-    ExpencesType,
-    Price
-  }
+const newExpense = {
+id: generateId(),
+type,
+price: Number(price)
+}
 
-  ExpencesTracker.push(newExpense)
+expenses.push(newExpense)
 
-  res.status(201).json({
-    message: "Expense added",
-    data: newExpense
-  })
+res.status(201).json({
+message: "Expense added",
+data: newExpense
+})
 })
 
 app.put('/api/expenses/:id', (req, res) => {
-  const id = parseInt(req.params.id)
-  const { ExpencesType, Price } = req.body
+const id = Number(req.params.id)
+const expense = expenses.find(e => e.id === id)
 
-  const expense = ExpencesTracker.find(e => e.id === id)
+if (!expense) {
+return res.status(404).json({ message: "Expense not found" })
+}
 
-  if (!expense) {
-    return res.status(404).json({ message: "Expense not found" })
-  }
+const { type, price } = req.body
 
-  expense.ExpencesType = ExpencesType || expense.ExpencesType
-  expense.Price = Price || expense.Price
+if (type !== undefined) expense.type = type
+if (price !== undefined) expense.price = Number(price)
 
-  res.json({ message: "Updated", data: expense })
+res.json({
+message: "Updated successfully",
+data: expense
+})
 })
 
 app.delete('/api/expenses/:id', (req, res) => {
-  const id = parseInt(req.params.id)
-  const index = ExpencesTracker.findIndex(e => e.id === id)
+const id = Number(req.params.id)
+const index = expenses.findIndex(e => e.id === id)
 
-  if (index === -1) {
-    return res.status(404).json({ message: "Expense not found" })
-  }
+if (index === -1) {
+return res.status(404).json({ message: "Expense not found" })
+}
 
-  ExpencesTracker.splice(index, 1)
+const deleted = expenses.splice(index, 1)
 
-  res.json({ message: "Deleted successfully" })
+res.json({
+message: "Deleted successfully",
+data: deleted[0]
+})
 })
 
 app.get('/api/expenses/type/:type', (req, res) => {
-  const type = req.params.type
+const type = req.params.type
 
-  const result = ExpencesTracker.filter(e =>
-    e.ExpencesType.toLowerCase() === type.toLowerCase()
-  )
+const result = expenses.filter(e =>
+e.type.toLowerCase() === type.toLowerCase()
+)
 
-  res.json(result)
+res.json(result)
 })
 
 app.get('/api/search', (req, res) => {
-  const type = req.query.type
+const type = req.query.type
 
-  if (!type) {
-    return res.status(400).json({ message: "Missing search query" })
-  }
+if (!type) {
+return res.status(400).json({ message: "Missing search query" })
+}
 
-  const result = ExpencesTracker.filter(e =>
-    e.ExpencesType.toLowerCase().includes(type.toLowerCase())
-  )
+const result = expenses.filter(e =>
+e.type.toLowerCase().includes(type.toLowerCase())
+)
 
-  res.json(result)
+res.json(result)
 })
 
 app.get('/api/random', (req, res) => {
-  const random = ExpencesTracker[Math.floor(Math.random() * ExpencesTracker.length)]
-  res.json(random)
+if (expenses.length === 0) {
+return res.status(404).json({ message: "No expenses found" })
+}
+
+const random = expenses[Math.floor(Math.random() * expenses.length)]
+res.json(random)
 })
 
 app.get('/api/count', (req, res) => {
-  res.json({ total: ExpencesTracker.length })
+res.json({ total: expenses.length })
 })
 
 app.get('/api/top', (req, res) => {
-  const top = ExpencesTracker.slice(0, 3)
-  res.json(top)
+res.json(expenses.slice(0, 3))
 })
 
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`)
+console.log(`Server running on port ${port}`)
 })
