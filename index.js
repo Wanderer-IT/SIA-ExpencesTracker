@@ -14,8 +14,17 @@ res.send('API is running. Use /api/expenses')
 })
 
 let expenses = [
-{ id: 1, type: "ElectricBill", price: 15 }
-]
+    { id: 1, type: "ElectricBill", price: 15 },
+    { id: 2, type: "WaterBill", price: 10 },
+    { id: 3, type: "InternetBill", price: 25 },
+    { id: 4, type: "Groceries", price: 60 },
+    { id: 5, type: "Transport", price: 20 },
+    { id: 6, type: "Rent", price: 300 },
+    { id: 7, type: "Load", price: 5 },
+    { id: 8, type: "FoodDelivery", price: 18 },
+    { id: 9, type: "SchoolSupplies", price: 12 },
+    { id: 10, type: "Entertainment", price: 15 }
+    ]
 
 function generateId() {
 return expenses.length > 0
