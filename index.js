@@ -13,12 +13,10 @@ let ExpencesTracker = [
   { id: 1, ExpencesType: "ElectricBill", Price: "$15" },
 ]
 
-// GET all
 app.get('/api/expenses', (req, res) => {
   res.status(200).json(ExpencesTracker)
 })
 
-// GET by id
 app.get('/api/expenses/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const expense = ExpencesTracker.find(e => e.id === id)
@@ -30,7 +28,6 @@ app.get('/api/expenses/:id', (req, res) => {
   res.json(expense)
 })
 
-// CREATE
 app.post('/api/expenses', (req, res) => {
   const { ExpencesType, Price } = req.body
 
@@ -52,7 +49,6 @@ app.post('/api/expenses', (req, res) => {
   })
 })
 
-// UPDATE
 app.put('/api/expenses/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const { ExpencesType, Price } = req.body
@@ -69,7 +65,6 @@ app.put('/api/expenses/:id', (req, res) => {
   res.json({ message: "Updated", data: expense })
 })
 
-// DELETE
 app.delete('/api/expenses/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const index = ExpencesTracker.findIndex(e => e.id === id)
@@ -83,7 +78,6 @@ app.delete('/api/expenses/:id', (req, res) => {
   res.json({ message: "Deleted successfully" })
 })
 
-// FILTER by type
 app.get('/api/expenses/type/:type', (req, res) => {
   const type = req.params.type
 
@@ -94,7 +88,6 @@ app.get('/api/expenses/type/:type', (req, res) => {
   res.json(result)
 })
 
-// SEARCH
 app.get('/api/search', (req, res) => {
   const type = req.query.type
 
@@ -109,18 +102,15 @@ app.get('/api/search', (req, res) => {
   res.json(result)
 })
 
-// RANDOM
 app.get('/api/random', (req, res) => {
   const random = ExpencesTracker[Math.floor(Math.random() * ExpencesTracker.length)]
   res.json(random)
 })
 
-// COUNT
 app.get('/api/count', (req, res) => {
   res.json({ total: ExpencesTracker.length })
 })
 
-// TOP 3
 app.get('/api/top', (req, res) => {
   const top = ExpencesTracker.slice(0, 3)
   res.json(top)
