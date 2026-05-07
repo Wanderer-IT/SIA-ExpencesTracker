@@ -26,12 +26,6 @@ let expenses = [
 { id: 10, type: "Entertainment", price: 15, status: "unpaid" }
 ]
 
-function generateId() {
-return expenses.length > 0
-? Math.max(...expenses.map(e => e.id)) + 1
-: 1
-}
-
 app.get('/api/expenses', (req, res) => {
 res.json(expenses)
 })
