@@ -58,15 +58,6 @@ app.get('/api/search', (req, res) => {
   res.json(result)
 })
 
-app.get('/api/random', (req, res) => {
-  if (expenses.length === 0) {
-    return res.status(404).json({ message: "No expenses found" })
-  }
-
-  const random = expenses[Math.floor(Math.random() * expenses.length)]
-  res.json(random)
-})
-
 app.get('/api/expenses/:id', (req, res) => {
   const id = Number(req.params.id)
   const expense = expenses.find(e => e.id === id)
