@@ -132,13 +132,6 @@ const random = expenses[Math.floor(Math.random() * expenses.length)]
 res.json(random)
 })
 
-app.get('/api/count', (req, res) => {
-res.json({ total: expenses.length })
-})
-
-app.get('/api/top', (req, res) => {
-res.json(expenses.slice(0, 3))
-})
 
 app.listen(port, () => {
 console.log(`Server running on port ${port}`)
