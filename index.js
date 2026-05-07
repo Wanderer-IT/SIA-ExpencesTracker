@@ -34,6 +34,39 @@ app.get('/api/expenses', (req, res) => {
   res.json(expenses)
 })
 
+app.get('/api/expenses/type/:type', (req, res) => {
+  const type = req.params.type
+
+  const result = expenses.filter(e =>
+    e.type.toLowerCase() === type.toLowerCase()
+  )
+
+  res.json(result)
+})
+
+app.get('/api/search', (req, res) => {
+  const type = req.query.type
+
+  if (!type) {
+    return res.status(400).json({ message: "Missing search query" })
+  }
+
+  const result = expenses.filter(e =>
+    e.type.toLowerCase().includes(type.toLowerCase())
+  )
+
+  res.json(result)
+})
+
+app.get('/api/random', (req, res) => {
+  if (expenses.length === 0) {
+    return res.status(404).json({ message: "No expenses found" })
+  }
+
+  const random = expenses[Math.floor(Math.random() * expenses.length)]
+  res.json(random)
+})
+
 app.get('/api/expenses/:id', (req, res) => {
   const id = Number(req.params.id)
   const expense = expenses.find(e => e.id === id)
@@ -101,39 +134,6 @@ app.delete('/api/expenses/:id', (req, res) => {
     message: "Deleted successfully",
     data: deleted[0]
   })
-})
-
-app.get('/api/expenses/type/:type', (req, res) => {
-  const type = req.params.type
-
-  const result = expenses.filter(e =>
-    e.type.toLowerCase() === type.toLowerCase()
-  )
-
-  res.json(result)
-})
-
-app.get('/api/search', (req, res) => {
-  const type = req.query.type
-
-  if (!type) {
-    return res.status(400).json({ message: "Missing search query" })
-  }
-
-  const result = expenses.filter(e =>
-    e.type.toLowerCase().includes(type.toLowerCase())
-  )
-
-  res.json(result)
-})
-
-app.get('/api/random', (req, res) => {
-  if (expenses.length === 0) {
-    return res.status(404).json({ message: "No expenses found" })
-  }
-
-  const random = expenses[Math.floor(Math.random() * expenses.length)]
-  res.json(random)
 })
 
 app.listen(port, () => {
